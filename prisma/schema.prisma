@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model categories {
+  id        Int       @id @default(autoincrement())
+  userid    Int
+  name      String    @db.VarChar(100)
+  color     String?   @db.VarChar(20)
+  createdat DateTime? @default(now()) @db.Timestamp(6)
+  users     users     @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_categories_users")
+  tasks     tasks[]
+}
+
+model subtasks {
+  id          Int       @id @default(autoincrement())
+  taskid      Int
+  title       String    @db.VarChar(200)
+  iscompleted Boolean?  @default(false)
+  createdat   DateTime? @default(now()) @db.Timestamp(6)
+  tasks       tasks     @relation(fields: [taskid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_subtasks_tasks")
+}
+
+model taskhistory {
+  id        Int       @id @default(autoincrement())
+  taskid    Int
+  action    String    @db.VarChar(100)
+  createdat DateTime? @default(now()) @db.Timestamp(6)
+  tasks     tasks     @relation(fields: [taskid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_taskhistory_tasks")
+}
+
+model tasks {
+  id          Int           @id @default(autoincrement())
+  userid      Int
+  categoryid  Int
+  title       String        @db.VarChar(200)
+  description String?
+  priority    String        @db.VarChar(20)
+  status      String        @db.VarChar(30)
+  duedate     DateTime?     @db.Date
+  isrecurring Boolean?      @default(false)
+  notes       String?
+  createdat   DateTime?     @default(now()) @db.Timestamp(6)
+  updatedat   DateTime?     @default(now()) @db.Timestamp(6)
+  subtasks    subtasks[]
+  taskhistory taskhistory[]
+  categories  categories    @relation(fields: [categoryid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tasks_categories")
+  users       users         @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tasks_users")
+}
+
+model users {
+  id Int @id @default(autoincrement())
+
+  firstName String
+  lastName  String
+
+  email    String @unique
+  password String
+
+  applicantCategory String?
+  organizationName  String?
+  website           String?
+  country           String?
+  language          String?
+
+  createdAt DateTime @default(now())
+
+  categories categories[]
+  tasks      tasks[]
+
+  api_logs api_logs[] // ✅ ADD THIS
+}
+
+model api_logs {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  endpoint  String
+  method    String
+  status    Int
+  latency   Int
+  createdAt DateTime @default(now())
+
+  user users @relation(fields: [userId], references: [id])
+}
