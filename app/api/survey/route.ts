@@ -1,48 +1,64 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
-export async function GET() {
+export async function POST(req: NextRequest) {
   try {
-    console.log("SURVEY API CALLED");
+    const body = await req.json();
 
-    const survey = await prisma.survey.findFirst({
-      orderBy: {
-        id: "desc",
+    const { registerData, surveyId, answers } = body;
+
+    //  CREATE USER
+    const hashedPassword = await bcrypt.hash(registerData.password, 10);
+
+    const user = await prisma.users.create({
+      data: {
+        firstName: registerData.firstName,
+        lastName: registerData.lastName,
+        email: registerData.email,
+        password: hashedPassword,
+        applicantCategory: registerData.applicantCategory,
+        organizationName: registerData.organizationName,
+        website: registerData.website,
+        country: registerData.country,
+        language: registerData.language,
       },
-      include: {
-        questions: {
-          orderBy: {
-            displayOrder: "asc",
-          },
-          include: {
+    });
+
+    //  SAVE SURVEY
+    await prisma.surveyResponse.create({
+      data: {
+        userId: user.id,
+        surveyId: Number(surveyId),
+        answers: {
+          create: answers.map((a: any) => ({
+            questionId: a.questionId,
+            additionalText: a.additionalText || null,
             options: {
-              orderBy: {
-                id: "asc",
-              },
+              create: (a.optionIds || []).map((optionId: string) => ({
+                option: {
+                  connect: {
+                    questionId_optionId: {
+                      questionId: a.questionId,
+                      optionId: optionId,
+                    },
+                  },
+                },
+              })),
             },
-          },
+          })),
         },
       },
     });
 
-    console.log("SURVEY FROM DB:", survey);
-
-    if (!survey) {
-      return NextResponse.json({
-        survey: null,
-        questions: [],
-      });
-    }
-
-    return NextResponse.json(survey);
-  } catch (error) {
-    console.error("SURVEY API ERROR:", error);
-
+    return NextResponse.json({
+      success: true,
+      userId: user.id, //  IMPORTANT
+    });
+  } catch (err) {
+    console.error("SUBMIT ERROR:", err);
     return NextResponse.json(
-      {
-        message: "Failed to fetch survey",
-        error: String(error),
-      },
+      { message: "Failed to submit survey" },
       { status: 500 }
     );
   }

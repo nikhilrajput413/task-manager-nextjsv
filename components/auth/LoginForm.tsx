@@ -51,6 +51,7 @@ export default function LoginForm() {
 
     //  SAVE LOGIN STATE
     localStorage.setItem("token", "loggedin");
+      localStorage.setItem("userId", result.user.id);
 
   window.location.href = "/dashboard";
     router.refresh();
