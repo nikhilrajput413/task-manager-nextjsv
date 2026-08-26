@@ -8,7 +8,7 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { email, password } = body;
 
-    // ✅ 1. FIND USER
+    //  1. FIND USER
     const user = await prisma.users.findUnique({
       where: { email },
     });
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // ✅ 2. PASSWORD CHECK
+    //  2. PASSWORD CHECK
     const isPasswordValid = await bcrypt.compare(
       password,
       user.password
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // ✅ 3. SET COOKIE
+    //  3. SET COOKIE
     const cookieStore = await cookies();
 
     cookieStore.set("user_session", JSON.stringify({
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       maxAge: 60 * 60 * 24,
     });
 
-    // ✅ 4. RETURN USER (IMPORTANT)
+    //  4. RETURN USER (IMPORTANT)
     return NextResponse.json({
       message: "Login Successful",
       user: {

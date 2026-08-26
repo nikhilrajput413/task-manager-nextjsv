@@ -6,7 +6,7 @@ import CategoryFilters from "@/components/category/CategoryFilters";
 
 export default async function CategoriesPage(props: any) {
 
-  const searchParams = await props.searchParams; // 🔥 IMPORTANT
+  const searchParams = await props.searchParams; //  IMPORTANT
 
   const filters: any[] = [];
 
@@ -47,7 +47,7 @@ export default async function CategoriesPage(props: any) {
         <AddCategoryModal />
       </div>
 
-      {/* 🔥 FILTERS */}
+      {/*  FILTERS */}
       <CategoryFilters />
 
       {/* Table */}
@@ -111,7 +111,7 @@ export default async function CategoriesPage(props: any) {
                       : "-"}
                   </td>
 
-                  {/* 🔥 ACTION */}
+                  {/*  ACTION */}
                   <td className="px-6 py-4 flex justify-center gap-4">
 
                     <EditCategoryModal category={category} />

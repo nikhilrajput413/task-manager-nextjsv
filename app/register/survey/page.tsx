@@ -48,22 +48,26 @@ export default function SurveyPage() {
     loadSurvey();
   }, []);
 
-  async function loadSurvey() {
-    try {
-      const res = await fetch("/api/survey", {
-        cache: "no-store",
-      });
+async function loadSurvey() {
+  try {
+    const res = await fetch("/api/survey");
 
-      const result = await res.json();
-
-      setSurvey(result);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
+    if (!res.ok) {
+      throw new Error("Failed to fetch survey");
     }
-  }
 
+    const result = await res.json();
+
+    console.log("SURVEY DATA 👉", result);
+
+    setSurvey(result);
+
+    setLoading(false); // IMPORTANT FIX
+  } catch (error) {
+    console.error(error);
+    setLoading(false); //  ERROR CASE me bhi
+  }
+}
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
