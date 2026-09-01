@@ -1,10 +1,12 @@
-export default function RootLayout({ children }: any) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body>
-        {/* Header/Navbar yaha ho sakta hai */}
-        {children}
-      </body>
-    </html>
+    <div>
+      {/* Agar dashboard specific header chahiye to yaha add karo */}
+      {children}
+    </div>
   );
 }

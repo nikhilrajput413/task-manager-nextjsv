@@ -9,7 +9,8 @@ export function middleware(req: NextRequest) {
 const isAuthPage =
   pathname === "/login" ||
   pathname === "/register" ||
-  pathname === "/register/survey";
+  pathname === "/register/survey" ||
+  pathname === "/forgot-password";
 
   //  API routes ko bypass karo
   if (pathname.startsWith("/api")) {
