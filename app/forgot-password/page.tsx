@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import router from "next/router";
 import { useState } from "react";
 
 export default function ForgotPasswordPage() {
@@ -32,7 +34,9 @@ export default function ForgotPasswordPage() {
       return;
     }
 
-    setMessage("Password updated successfully");
+    alert("✅ Password updated successfully. You will be redirected to the login page.");
+
+ window.location.href = "/dashboard";
   }
 
   return (

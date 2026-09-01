@@ -6,9 +6,30 @@ import { cookies } from "next/headers";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, password } = body;
+    const { email, password, captchaToken } = body;
 
-    //  1. FIND USER
+    // 1. CAPTCHA VERIFY
+    const captchaVerify = await fetch(
+      "https://www.google.com/recaptcha/api/siteverify",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${captchaToken}`,
+      }
+    );
+
+    const captchaData = await captchaVerify.json();
+
+    if (!captchaData.success) {
+      return NextResponse.json(
+        { message: "Captcha verification failed" },
+        { status: 400 }
+      );
+    }
+
+    // 2. FIND USER
     const user = await prisma.users.findUnique({
       where: { email },
     });
@@ -20,7 +41,7 @@ export async function POST(request: Request) {
       );
     }
 
-    //  2. PASSWORD CHECK
+    // 3. PASSWORD CHECK
     const isPasswordValid = await bcrypt.compare(
       password,
       user.password
@@ -33,21 +54,25 @@ export async function POST(request: Request) {
       );
     }
 
-    //  3. SET COOKIE
-    const cookieStore = await cookies();
+    // 4. SET COOKIE
+    const cookieStore = cookies();
 
-    cookieStore.set("user_session", JSON.stringify({
-      id: user.id,
-      email: user.email,
-    }), {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24,
-    });
+    (await cookieStore).set(
+      "user_session",
+      JSON.stringify({
+        id: user.id,
+        email: user.email,
+      }),
+      {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
+        maxAge: 60 * 60 * 24,
+      }
+    );
 
-    //  4. RETURN USER (IMPORTANT)
+    // 5. SUCCESS RESPONSE
     return NextResponse.json({
       message: "Login Successful",
       user: {
@@ -57,7 +82,6 @@ export async function POST(request: Request) {
         lastName: user.lastName,
       },
     });
-
   } catch (error) {
     console.error(error);
     return NextResponse.json(

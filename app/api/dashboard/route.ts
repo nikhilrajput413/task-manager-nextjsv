@@ -12,7 +12,7 @@ export async function GET() {
       },
     });
 
-    // 👉 total stats
+    //  total stats
     const total = logs.length;
     const success = logs.filter((l) => l.status < 400).length;
     const errors = logs.filter((l) => l.status >= 400).length;
@@ -23,7 +23,7 @@ export async function GET() {
           ) + "ms"
         : "0ms";
 
-    // 👉 group by user
+    //  group by user
     const userMap: any = {};
 
     logs.forEach((log) => {
@@ -33,6 +33,7 @@ export async function GET() {
         userMap[userId] = {
           id: userId,
           name: log.user?.firstName + " " + log.user?.lastName,
+             organizationName: log.user?.organizationName || "Unknown", 
           requests: 0,
           success: 0,
           errors: 0,
