@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { RefreshCcw } from "lucide-react";
+import Link from "next/link";
+import CreateEventModal from "@/components/CreateEventModal";
 
 export default function DashboardPage() {
   const [data, setData] = useState<any>(null);
@@ -9,6 +11,7 @@ export default function DashboardPage() {
   const [activeFilter, setActiveFilter] = useState("7 days");
   const [selectedOrg, setSelectedOrg] = useState("");
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+   const [open, setOpen] = useState(false);
 
   useEffect(() => {
     fetchDashboard();
@@ -60,6 +63,23 @@ export default function DashboardPage() {
             Monitor API performance and user activity
           </p>
         </div>
+
+        <div className="p-6">
+
+      {/* BUTTON */}
+      <button
+        onClick={() => setOpen(true)}
+        className="bg-green-600 text-white px-4 py-2 rounded"
+      >
+        ➕ Create New Event
+      </button>
+
+      {/* MODAL */}
+      <CreateEventModal
+        isOpen={open}
+        onClose={() => setOpen(false)}
+      />
+    </div>
 
         {/* FILTERS */}
         <div className="flex flex-wrap items-center justify-between gap-4 mb-6">

@@ -28,3 +28,10 @@ main {
   margin: 0 !important;
   padding: 0 !important;
 }
+
+.input {
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 6px;
+  width: 100%;
+}
